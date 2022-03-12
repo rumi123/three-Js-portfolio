@@ -11,7 +11,7 @@ export default class Sketch {
     this.container = options.dom;
     this.width = this.container.offsetWidth;
     this.height = this.container.offsetHeight;
-    this.renderer = new THREE.WebGL1Renderer({antialias: true, alpha: true});
+    this.renderer = new THREE.WebGL1Renderer({ antialias: true, alpha: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
     this.renderer.setClearColor(0xeeeeee, 1);
@@ -40,28 +40,57 @@ export default class Sketch {
     this.setupResize();
     this.materials = [];
     this.meshes = [];
-    this.groups = []
+    this.geos = [];
+    this.bender();
+    this.groups = [];
     this.handleImages();
+  }
+
+  bender() {
+    console.log("bend");
+    this.geos.forEach((geo) => {
+      console.log(geo);
+      console.log(geo.attributes.position);
+    });
   }
 
   handleImages() {
     let images = [...document.querySelectorAll("img")];
 
     images.forEach((im, i) => {
-      let mat = this.material.clone();
-      this.materials.push(mat);
-      let group = new THREE.Group()
+      // let mat = this.material.clone();
+      // this.materials.push(mat);
+      let group = new THREE.Group();
       // mat.wireframe = true
-      let texture = new THREE.TextureLoader().load(`images/${i+1}.jpg`)
-      mat.uniforms.texture1.value = new THREE.Texture(im);
-      mat.uniforms.texture1.value.needsUpdate = true;
+      let texture = new THREE.TextureLoader().load(`images/${i + 1}.jpg`);
+      // mat.uniforms.texture1.value = new THREE.Texture(im);
+      // mat.uniforms.texture1.value.needsUpdate = true;
 
-      let material1 = new THREE.MeshBasicMaterial({map:texture})
+      let material1 = new THREE.MeshBasicMaterial({ map: texture,transparent: true, opacity:0.5 });
+      this.materials.push(material1)
       
+
       let geo = new THREE.PlaneBufferGeometry(1.2, 1, 20, 20);
+      this.geos.push(geo);
+      let angle =  -0.7;
+      let theta = 0;
+      let v = geo.attributes.position.array;
+      for (let i = 0; i < v.length; i += 3) {
+        let x = v[i];
+        let y = v[i + 1];
+        let z = v[i + 2];
+        theta = x * angle;
+        let sinTheta = Math.sin(theta);
+        let cosTheta = Math.cos(theta);
+        v[i] = -(z - 1.0 / angle) * sinTheta;
+        v[i + 1] = y;
+        v[i + 2] = (z - 1.0 / angle) * cosTheta + 1.0 / angle;
+        geo.attributes.position.needsUpdate = true;
+      }
+
       let mesh = new THREE.Mesh(geo, material1);
-      group.add(mesh)
-      this.groups.push(group)
+      group.add(mesh);
+      this.groups.push(group);
       this.scene.add(group);
       this.meshes.push(mesh);
 
@@ -69,8 +98,8 @@ export default class Sketch {
       group.rotation.y = -0.5;
       group.rotation.x = -0.3;
       group.rotation.z = -0.5;
-      group.position.z = -1
-      group.position.x = 1
+      group.position.z = -1;
+      group.position.x = 1;
     });
   }
 
@@ -149,12 +178,12 @@ export default class Sketch {
   render() {
     if (!this.isPlaying) return;
     this.time += 0.05;
-    if (this.materials) {
-      this.materials.forEach((m) => {
-        m.uniforms.time.value = this.time;
-      });
-    }
-    this.renderer.setClearAlpha(0)
+    // if (this.materials) {
+    //   this.materials.forEach((m) => {
+    //     m.uniforms.time.value = this.time;
+    //   });
+    // }
+    this.renderer.setClearAlpha(0);
     this.material.uniforms.time.value = this.time;
     requestAnimationFrame(this.render.bind(this));
     this.renderer.render(this.scene, this.camera);

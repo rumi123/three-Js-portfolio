@@ -19,6 +19,8 @@ window.addEventListener("wheel", (e) => {
   speed += e.deltaY * 0.0003; // deltaY represent the speed of mouse movement.
 });
 
+console.log(sketch.materials);
+
 let objs = Array(5).fill({ dist: 0 });
 let colors = ['white','green','grey','black','purple']
 function animate() {
@@ -28,8 +30,10 @@ function animate() {
     o.dist = Math.min(Math.abs(position - i), 1);
     o.dist = 1 - o.dist ** 2;
     elms[i].style.transform = `scale(${1 + 0.4 * o.dist})`;
-    scale = 1 + 0.1*o.dist
+    scale = 1 + 0.2*o.dist
+    let opacity = 0.5 + o.dist
     sketch.meshes[i].scale.set(scale,scale,scale)
+    sketch.materials[i].opacity = opacity
     if(scale > 1.09){
       document.getElementById('block').style.backgroundColor = colors[i]
     }
