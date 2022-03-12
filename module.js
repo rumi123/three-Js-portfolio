@@ -58,7 +58,7 @@ export default class Sketch {
 
       let material1 = new THREE.MeshBasicMaterial({map:texture})
       
-      let geo = new THREE.PlaneBufferGeometry(1.5, 1, 20, 20);
+      let geo = new THREE.PlaneBufferGeometry(1.2, 1, 20, 20);
       let mesh = new THREE.Mesh(geo, material1);
       group.add(mesh)
       this.groups.push(group)
@@ -66,9 +66,11 @@ export default class Sketch {
       this.meshes.push(mesh);
 
       mesh.position.y = i * 1.2;
-      group.rotation.y = -0.3;
+      group.rotation.y = -0.5;
       group.rotation.x = -0.3;
-      group.rotation.z = -0.1;
+      group.rotation.z = -0.5;
+      group.position.z = -1
+      group.position.x = 1
     });
   }
 
